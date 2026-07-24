@@ -99,7 +99,9 @@ header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:u
     <b>Gerenciar cursos</b><span>Escola Instructiva</span>
     <div class="acoes-topo">
       <a class="btn" href="/">Ver central</a>
+      <button class="btn" id="btn-importar">Importar</button>
       <button class="btn" id="btn-backup">Backup</button>
+      <input type="file" id="arquivo-import" accept=".json,application/json" class="oculto">
       <button class="btn btn-forte" id="btn-novo">Novo curso</button>
     </div>
   </header>
@@ -453,6 +455,47 @@ $('#btn-backup').onclick = async () => {
   a.download = 'grades-instructiva-' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
   toast('Backup baixado');
+};
+
+/* ---------- importar ---------- */
+$('#btn-importar').onclick = () => $('#arquivo-import').click();
+
+$('#arquivo-import').onchange = async (e) => {
+  const arquivo = e.target.files[0];
+  if(!arquivo) return;
+  e.target.value = '';
+
+  let conteudo;
+  try{
+    conteudo = JSON.parse(await arquivo.text());
+  }catch(err){
+    return toast('Esse arquivo não é um JSON válido.');
+  }
+
+  const qtd = Array.isArray(conteudo) ? conteudo.length
+    : Array.isArray(conteudo.cursos) ? conteudo.cursos.length : 1;
+
+  let modo = 'adicionar';
+  if(cursos.length){
+    const trocar = confirm(
+      `O arquivo tem ${qtd} curso(s).\n\n` +
+      `OK = adicionar aos ${cursos.length} que já estão cadastrados.\n` +
+      `Cancelar = substituir tudo pelo conteúdo do arquivo.`);
+    if(!trocar){
+      if(!confirm('Substituir apaga os cursos atuais. Tem certeza?')) return;
+      modo = 'substituir';
+    }
+  }
+
+  const r = await fetch('/api/importar', {
+    method:'POST', headers:{'Content-Type':'application/json','x-senha':senha},
+    body: JSON.stringify({ conteudo, modo })
+  });
+  const resp = await r.json().catch(()=>({}));
+  if(!r.ok) return toast(resp.erro || 'Não foi possível importar.');
+
+  toast(`${resp.adicionados} curso(s) importado(s)` + (resp.renomeados ? ` · ${resp.renomeados} com nome repetido` : ''));
+  carregar();
 };
 
 /* ---------- utilidades ---------- */

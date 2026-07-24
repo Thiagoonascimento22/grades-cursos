@@ -174,6 +174,40 @@ app.get('/api/backup', exigirSenha, (req, res) => {
   res.json(lerDB());
 });
 
+// importar cursos de um arquivo JSON (backup ou curso avulso)
+// modo "adicionar" mantém o que já existe; "substituir" troca todo o banco
+app.post('/api/importar', exigirSenha, async (req, res) => {
+  const bruto = req.body?.conteudo;
+  const modo = req.body?.modo === 'substituir' ? 'substituir' : 'adicionar';
+  if (!bruto) return res.status(400).json({ erro: 'Nada para importar.' });
+
+  const entrada = Array.isArray(bruto) ? bruto : Array.isArray(bruto.cursos) ? bruto.cursos : [bruto];
+  const validos = entrada.filter((c) => c && typeof c === 'object' && String(c.nome || '').trim());
+  if (!validos.length) {
+    return res.status(400).json({ erro: 'O arquivo não tem nenhum curso com nome. Confira se é um backup da Central de Grades.' });
+  }
+
+  const db = lerDB();
+  if (modo === 'substituir') db.cursos = [];
+
+  const nomesExistentes = new Set(db.cursos.map((c) => c.nome.toLowerCase()));
+  let adicionados = 0, renomeados = 0;
+
+  validos.forEach((c, i) => {
+    const curso = normalizarCurso({ ...c, ordem: db.cursos.length + i + 1 });
+    if (nomesExistentes.has(curso.nome.toLowerCase())) {
+      curso.nome += ' (importado)';
+      renomeados++;
+    }
+    nomesExistentes.add(curso.nome.toLowerCase());
+    db.cursos.push(curso);
+    adicionados++;
+  });
+
+  await salvarDB(db);
+  res.json({ ok: true, adicionados, renomeados, total: db.cursos.length });
+});
+
 app.get('/health', (req, res) => res.json({ ok: true, cursos: lerDB().cursos.length }));
 
 app.listen(PORT, () => {

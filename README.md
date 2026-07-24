@@ -19,7 +19,12 @@ escolhe o formato e copia o texto já pronto pra colar no WhatsApp.
   Campo "Colar grade em texto" transforma a grade colada em módulos e tópicos
   automaticamente — reconhece "Módulo I", títulos terminados em dois-pontos e
   linhas de "Carga horária: 36h". Cada módulo tem um painel de detalhes com
-  descrição, aprendizados e diferencial. Botão "Backup" baixa tudo em JSON.
+  descrição, aprendizados e diferencial.
+  - **Backup** baixa todos os cursos em um JSON.
+  - **Importar** carrega um JSON de volta — serve para restaurar um backup ou para
+    subir uma grade já montada. Pergunta se você quer adicionar aos cursos atuais
+    ou substituir tudo. Cursos com nome repetido entram como "(importado)", nada é
+    sobrescrito em silêncio.
 
 ## Rodar local
 
@@ -46,7 +51,12 @@ Senha padrão, se `ADMIN_SENHA` não for definida: `instructiva2026`. **Trocar a
 ## Onde ficam os dados
 
 Arquivo JSON único em `$DATA_DIR/grades.json`, com fila de escrita para não corromper
-quando duas pessoas salvam ao mesmo tempo. Backup pelo botão no painel.
+quando duas pessoas salvam ao mesmo tempo.
+
+**Importante:** depois do primeiro deploy com Volume, o banco passa a viver no Volume
+do Railway. O `data/grades.json` que vem no zip só é usado se o arquivo ainda não
+existir lá — subir um zip novo **não** substitui os cursos já cadastrados, e isso é
+proposital. Para levar cursos de um ambiente pro outro, use Backup e Importar.
 
 ## Formato de um curso
 
