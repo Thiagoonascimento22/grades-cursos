@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerenciar cursos · Central de Grades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#FAF7F2;--branco:#FFFFFF;--tinta:#16130F;--tinta-2:#5F584E;--tinta-3:#8E867A;
+  --linha:#E8E1D6;--laranja:#F26522;--verde:#25A06B;--vermelho:#C0392B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',system-ui,sans-serif;background:var(--papel);color:var(--tinta);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:14px;width:100%;padding:11px 12px;border:1px solid var(--linha);border-radius:9px;background:var(--branco);outline:none;color:var(--tinta)}
+input:focus,textarea:focus,select:focus{border-color:var(--tinta)}
+textarea{resize:vertical;line-height:1.55}
+
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:14px 22px;background:var(--branco);border-bottom:1px solid var(--linha)}
+.barra-grad{height:3px;width:34px;background:linear-gradient(90deg,var(--laranja),var(--verde));border-radius:2px}
+header b{font-family:'Anton',sans-serif;font-size:19px;text-transform:uppercase;letter-spacing:.5px}
+header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--tinta-3)}
+.acoes-topo{margin-left:auto;display:flex;gap:8px}
+.btn{padding:9px 15px;border-radius:9px;font-size:13px;font-weight:700;border:1px solid var(--linha);color:var(--tinta-2);text-decoration:none;display:inline-block;background:var(--branco)}
+.btn:hover{border-color:var(--tinta);color:var(--tinta)}
+.btn-forte{background:linear-gradient(90deg,var(--laranja),var(--verde));color:#fff;border:0}
+.btn-forte:hover{filter:brightness(1.06);color:#fff}
+.btn-risco{color:var(--vermelho);border-color:#EBD3CF}
+.btn-risco:hover{background:var(--vermelho);color:#fff;border-color:var(--vermelho)}
+
+.envelope{max-width:1120px;margin:0 auto;padding:28px 22px 80px}
+.login{max-width:380px;margin:14vh auto;background:var(--branco);border:1px solid var(--linha);border-radius:14px;padding:30px}
+.login h1{font-family:'Anton',sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:6px}
+.login p{font-size:13.5px;color:var(--tinta-2);margin-bottom:20px;line-height:1.5}
+.login button{width:100%;margin-top:12px;padding:13px;border-radius:9px;font-weight:800;font-size:14px}
+.erro{color:var(--vermelho);font-size:12.5px;font-weight:700;margin-top:10px;display:none}
+
+.linha-topo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.linha-topo h2{font-family:'Anton',sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.5px}
+.linha-topo small{font-size:12px;font-weight:700;color:var(--tinta-3)}
+.cartao{background:var(--branco);border:1px solid var(--linha);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.cartao h3{font-size:15px;font-weight:700}
+.cartao small{display:block;font-size:12px;color:var(--tinta-3);font-weight:600;margin-top:3px}
+.cartao .cresce{flex:1;min-width:0}
+.cartao button{font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:8px;border:1px solid var(--linha);color:var(--tinta-2)}
+.cartao button:hover{border-color:var(--tinta);color:var(--tinta)}
+.cartao button.excluir:hover{background:var(--vermelho);border-color:var(--vermelho);color:#fff}
+
+.bloco{background:var(--branco);border:1px solid var(--linha);border-radius:14px;padding:24px;margin-bottom:16px}
+.bloco h3{font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--tinta-3);margin-bottom:16px}
+.grade-campos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo.largo{grid-column:1/-1}
+.campo label{font-size:12px;font-weight:700;color:var(--tinta-2)}
+.campo .dica{font-size:11.5px;color:var(--tinta-3);font-weight:500;line-height:1.45}
+
+.modulo-edit,.livro-edit{border:1px solid var(--linha);border-radius:11px;padding:14px;margin-bottom:10px;background:var(--papel)}
+.cabeca{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.indice{font-family:'Anton',sans-serif;color:var(--laranja);font-size:14px;min-width:26px}
+.mini{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px}
+.mini input{padding:9px 11px;font-size:13px}
+.remover{font-size:12px;font-weight:700;color:var(--tinta-3);padding:6px 10px;border-radius:7px;border:1px solid var(--linha);background:var(--branco);white-space:nowrap}
+.remover:hover{color:var(--vermelho);border-color:var(--vermelho)}
+.mover{font-size:13px;font-weight:800;color:var(--tinta-3);padding:6px 9px;border:1px solid var(--linha);border-radius:7px;background:var(--branco)}
+.mover:hover{color:var(--tinta);border-color:var(--tinta)}
+.abre-detalhes{font-size:11.5px;font-weight:800;letter-spacing:.5px;color:var(--tinta-3);border:1px solid var(--linha);background:var(--branco);border-radius:7px;padding:7px 11px;margin-top:8px}
+.abre-detalhes:hover{color:var(--tinta);border-color:var(--tinta)}
+.detalhes{display:none;margin-top:10px;padding-top:12px;border-top:1px solid var(--linha)}
+.modulo-edit.aberto .detalhes{display:block}
+.detalhes label{font-size:11.5px;font-weight:700;color:var(--tinta-2);display:block;margin:10px 0 5px}
+.detalhes label:first-child{margin-top:0}
+
+.rodape-form{display:flex;gap:10px;align-items:center;position:sticky;bottom:0;background:var(--papel);padding:16px 0;border-top:1px solid var(--linha)}
+.rodape-form .btn{padding:13px 22px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);background:var(--tinta);color:#fff;padding:12px 22px;border-radius:99px;font-size:13.5px;font-weight:700;opacity:0;pointer-events:none;transition:.22s;z-index:60}
+#toast.ver{opacity:1;transform:translate(-50%,0)}
+.oculto{display:none!important}
+@media (max-width:760px){.grade-campos,.mini{grid-template-columns:1fr}.envelope{padding:20px 14px 70px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--laranja);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="login" id="tela-login">
+  <h1>Gerenciar cursos</h1>
+  <p>Área restrita. Aqui você cadastra e edita as grades que a equipe usa pra enviar aos alunos.</p>
+  <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+  <button class="btn btn-forte" id="btn-entrar">Entrar</button>
+  <p class="erro" id="erro-login">Senha incorreta. Tente de novo.</p>
+</div>
+
+<div id="app" class="oculto">
+  <header>
+    <div class="barra-grad"></div>
+    <b>Gerenciar cursos</b><span>Escola Instructiva</span>
+    <div class="acoes-topo">
+      <a class="btn" href="/">Ver central</a>
+      <button class="btn" id="btn-backup">Backup</button>
+      <button class="btn btn-forte" id="btn-novo">Novo curso</button>
+    </div>
+  </header>
+
+  <div class="envelope">
+    <section id="tela-lista">
+      <div class="linha-topo"><h2>Cursos</h2><small id="resumo-lista"></small></div>
+      <div id="cartoes"></div>
+    </section>
+
+    <section id="tela-form" class="oculto">
+      <div class="linha-topo"><h2 id="titulo-form">Novo curso</h2></div>
+
+      <div class="bloco">
+        <h3>Identificação</h3>
+        <div class="grade-campos">
+          <div class="campo largo"><label for="f-nome">Nome do curso</label>
+            <input id="f-nome" placeholder="Ex.: Conserto de Placas de Celular"></div>
+          <div class="campo largo"><label for="f-subtitulo">Chamada curta</label>
+            <input id="f-subtitulo" placeholder="Ex.: Do diagnóstico ao reparo em nível de componente"></div>
+          <div class="campo"><label for="f-carga">Carga horária</label><input id="f-carga" placeholder="Ex.: 48 horas"></div>
+          <div class="campo"><label for="f-nivel">Nível</label><input id="f-nivel" placeholder="Ex.: Do zero ao avançado"></div>
+          <div class="campo"><label for="f-modalidade">Modalidade</label><input id="f-modalidade" placeholder="Ex.: Online, com acesso vitalício"></div>
+          <div class="campo"><label for="f-certificado">Certificado</label><input id="f-certificado" placeholder="Ex.: Sim, com certificado"></div>
+          <div class="campo"><label for="f-numeracao">Numeração dos módulos</label>
+            <select id="f-numeracao">
+              <option value="arabica">01, 02, 03…</option>
+              <option value="romana">I, II, III…</option>
+            </select></div>
+          <div class="campo largo"><label for="f-descricao">Apresentação</label>
+            <textarea id="f-descricao" rows="3" placeholder="O que a formação é e para quem serve"></textarea></div>
+          <div class="campo largo"><label for="f-objetivo">Objetivo geral</label>
+            <textarea id="f-objetivo" rows="3" placeholder="Para o que o curso capacita o participante"></textarea></div>
+          <div class="campo largo"><label for="f-destaques">Diferenciais</label>
+            <span class="dica">Um por linha. Aparecem em destaque na central e no texto copiado.</span>
+            <textarea id="f-destaques" rows="4"></textarea></div>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>Grade curricular</h3>
+        <div class="campo largo" style="margin-bottom:18px">
+          <label for="f-colar">Colar grade em texto</label>
+          <span class="dica">Cole a grade do jeito que tiver. Linhas que começam com “Módulo”, ou que terminam em dois-pontos, viram módulos; “Carga horária: 36h” entra na carga do módulo; o resto vira tópico.</span>
+          <textarea id="f-colar" rows="6" placeholder="Módulo 1 - Fundamentos de eletrônica&#10;Carga horária: 36h&#10;- Corrente, tensão e resistência&#10;- Como usar o multímetro"></textarea>
+          <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+            <button class="btn" id="btn-parsear">Transformar em módulos</button>
+            <button class="btn" id="btn-parsear-add">Adicionar ao que já existe</button>
+          </div>
+        </div>
+        <div id="modulos"></div>
+        <button class="btn" id="btn-add-modulo" style="margin-top:6px">+ Adicionar módulo</button>
+      </div>
+
+      <div class="bloco">
+        <h3>Livros e extras</h3>
+        <div id="livros"></div>
+        <button class="btn" id="btn-add-livro" style="margin-bottom:18px">+ Adicionar livro</button>
+        <div class="grade-campos">
+          <div class="campo largo"><label for="f-bonus">Bônus</label>
+            <span class="dica">Um por linha.</span>
+            <textarea id="f-bonus" rows="3"></textarea></div>
+          <div class="campo largo"><label for="f-obs">Observações</label>
+            <span class="dica">Fecham o texto copiado.</span>
+            <textarea id="f-obs" rows="3"></textarea></div>
+        </div>
+      </div>
+
+      <div class="rodape-form">
+        <button class="btn btn-forte" id="btn-salvar">Salvar curso</button>
+        <button class="btn" id="btn-cancelar">Cancelar</button>
+        <button class="btn btn-risco oculto" id="btn-excluir" style="margin-left:auto">Excluir curso</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let senha = sessionStorage.getItem('grades_senha') || '';
+let cursos = [], editando = null, modulos = [], livros = [];
+
+/* ---------- login ---------- */
+async function entrar(valor){
+  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ senha: valor }) });
+  if(!r.ok){ $('#erro-login').style.display='block'; sessionStorage.removeItem('grades_senha'); return; }
+  senha = valor;
+  sessionStorage.setItem('grades_senha', senha);
+  $('#tela-login').classList.add('oculto');
+  $('#app').classList.remove('oculto');
+  carregar();
+}
+$('#btn-entrar').onclick = () => entrar($('#senha').value);
+$('#senha').onkeydown = (e) => { if(e.key === 'Enter') entrar($('#senha').value); };
+if(senha) entrar(senha);
+
+/* ---------- lista ---------- */
+async function carregar(){
+  cursos = await (await fetch('/api/grades')).json();
+  const totalTopicos = cursos.reduce((t,c)=>t+(c.modulos||[]).reduce((s,m)=>s+(m.aulas?.length||0),0),0);
+  $('#resumo-lista').textContent = cursos.length
+    ? `${cursos.length} curso${cursos.length>1?'s':''} · ${totalTopicos} tópicos cadastrados` : '';
+  $('#cartoes').innerHTML = cursos.length ? cursos.map((c,i) => {
+    const top = (c.modulos||[]).reduce((t,m)=>t+(m.aulas?.length||0),0);
+    const extras = [];
+    if((c.livros||[]).length) extras.push(`${c.livros.length} livros`);
+    if(c.cargaHoraria) extras.push(c.cargaHoraria);
+    return `<div class="cartao">
+      <div class="cresce"><h3>${esc(c.nome)}</h3>
+        <small>${(c.modulos||[]).length} módulos · ${top} tópicos${extras.length?' · '+esc(extras.join(' · ')):''} · atualizado em ${data(c.atualizadoEm)}</small></div>
+      <button data-sobe="${c.id}" class="mover" ${i===0?'disabled':''}>↑</button>
+      <button data-desce="${c.id}" class="mover" ${i===cursos.length-1?'disabled':''}>↓</button>
+      <button data-dup="${c.id}">Duplicar</button>
+      <button data-edit="${c.id}">Editar</button>
+      <button data-del="${c.id}" class="excluir">Excluir</button>
+    </div>`;
+  }).join('') : `<div class="cartao"><div class="cresce"><h3>Nenhum curso ainda</h3>
+      <small>Clique em “Novo curso” pra cadastrar a primeira grade.</small></div></div>`;
+
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => abrirForm(b.dataset.edit));
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => excluir(b.dataset.del));
+  document.querySelectorAll('[data-dup]').forEach(b => b.onclick = () => duplicar(b.dataset.dup));
+  document.querySelectorAll('[data-sobe]').forEach(b => b.onclick = () => mover(b.dataset.sobe,-1));
+  document.querySelectorAll('[data-desce]').forEach(b => b.onclick = () => mover(b.dataset.desce,1));
+}
+
+async function mover(id, dir){
+  const i = cursos.findIndex(c=>c.id===id), j = i + dir;
+  if(j < 0 || j >= cursos.length) return;
+  const ids = cursos.map(c=>c.id);
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  await fetch('/api/grades/ordenar', { method:'POST',
+    headers:{'Content-Type':'application/json','x-senha':senha}, body: JSON.stringify({ ids }) });
+  carregar();
+}
+
+async function excluir(id){
+  const c = cursos.find(x=>x.id===id);
+  if(!confirm(`Excluir "${c.nome}"? Essa ação não tem volta.`)) return;
+  const r = await fetch('/api/grades/'+id, { method:'DELETE', headers:{'x-senha':senha} });
+  if(!r.ok) return toast('Não foi possível excluir.');
+  toast('Curso excluído'); fecharForm(); carregar();
+}
+
+async function duplicar(id){
+  const copia = JSON.parse(JSON.stringify(cursos.find(x=>x.id===id)));
+  copia.nome += ' (cópia)'; delete copia.id;
+  const r = await fetch('/api/grades', { method:'POST',
+    headers:{'Content-Type':'application/json','x-senha':senha}, body: JSON.stringify(copia) });
+  if(!r.ok) return toast('Não foi possível duplicar.');
+  toast('Curso duplicado'); carregar();
+}
+
+/* ---------- formulário ---------- */
+$('#btn-novo').onclick = () => abrirForm(null);
+$('#btn-cancelar').onclick = fecharForm;
+
+function abrirForm(id){
+  editando = id;
+  const c = id ? cursos.find(x=>x.id===id) : {};
+  $('#titulo-form').textContent = id ? 'Editar curso' : 'Novo curso';
+  $('#f-nome').value = c.nome || '';
+  $('#f-subtitulo').value = c.subtitulo || '';
+  $('#f-carga').value = c.cargaHoraria || '';
+  $('#f-nivel').value = c.nivel || '';
+  $('#f-modalidade').value = c.modalidade || '';
+  $('#f-certificado').value = c.certificado || '';
+  $('#f-numeracao').value = c.numeracao === 'romana' ? 'romana' : 'arabica';
+  $('#f-descricao').value = c.descricao || '';
+  $('#f-objetivo').value = c.objetivo || '';
+  $('#f-destaques').value = (c.destaques || []).join('\n');
+  $('#f-bonus').value = (c.bonus || []).join('\n');
+  $('#f-obs').value = c.observacoes || '';
+  $('#f-colar').value = '';
+  modulos = JSON.parse(JSON.stringify(c.modulos || []));
+  livros = JSON.parse(JSON.stringify(c.livros || []));
+  desenharModulos(); desenharLivros();
+  $('#btn-excluir').classList.toggle('oculto', !id);
+  $('#btn-excluir').onclick = () => excluir(id);
+  $('#tela-lista').classList.add('oculto');
+  $('#tela-form').classList.remove('oculto');
+  window.scrollTo(0,0);
+}
+
+function fecharForm(){
+  $('#tela-form').classList.add('oculto');
+  $('#tela-lista').classList.remove('oculto');
+  editando = null;
+}
+
+function desenharModulos(){
+  $('#modulos').innerHTML = modulos.map((m,i) => `
+    <div class="modulo-edit" id="mod-${i}">
+      <div class="cabeca">
+        <span class="indice">${String(i+1).padStart(2,'0')}</span>
+        <input value="${esc(m.titulo)}" data-tit="${i}" placeholder="Título do módulo">
+        <button class="mover" data-msobe="${i}" ${i===0?'disabled':''}>↑</button>
+        <button class="mover" data-mdesce="${i}" ${i===modulos.length-1?'disabled':''}>↓</button>
+        <button class="remover" data-mdel="${i}">Remover</button>
+      </div>
+      <div class="mini">
+        <input value="${esc(m.parte||'')}" data-parte="${i}" placeholder="Parte (opcional) — ex.: Parte 1 · Fundamentos — 72h">
+        <input value="${esc(m.cargaHoraria||'')}" data-mcarga="${i}" placeholder="Carga (ex.: 36h)">
+      </div>
+      <textarea rows="${Math.max(2,(m.aulas||[]).length)}" data-aulas="${i}"
+        placeholder="Um tópico por linha">${esc((m.aulas||[]).join('\n'))}</textarea>
+      <button class="abre-detalhes" data-mdet="${i}">Descrição, aprendizados e diferencial</button>
+      <div class="detalhes">
+        <label>Descrição do módulo</label>
+        <textarea rows="3" data-mdesc="${i}">${esc(m.descricao||'')}</textarea>
+        <label>O participante vai aprender a (um por linha)</label>
+        <textarea rows="3" data-maprende="${i}">${esc((m.aprende||[]).join('\n'))}</textarea>
+        <label>Diferencial prático do módulo</label>
+        <textarea rows="2" data-mdif="${i}">${esc(m.diferencial||'')}</textarea>
+      </div>
+    </div>`).join('');
+
+  const liga = (attr, campo, lista) => document.querySelectorAll(`[data-${attr}]`).forEach(el =>
+    el.oninput = () => {
+      const v = el.value;
+      modulos[+el.dataset[attr]][campo] = lista ? v.split('\n').map(s=>s.trim()).filter(Boolean) : v;
+    });
+  liga('tit','titulo'); liga('parte','parte'); liga('mcarga','cargaHoraria');
+  liga('aulas','aulas',true); liga('mdesc','descricao'); liga('maprende','aprende',true); liga('mdif','diferencial');
+
+  document.querySelectorAll('[data-mdet]').forEach(b => b.onclick = () => {
+    const card = document.getElementById('mod-'+b.dataset.mdet);
+    card.classList.toggle('aberto');
+  });
+  document.querySelectorAll('[data-mdel]').forEach(b => b.onclick = () => { modulos.splice(+b.dataset.mdel,1); desenharModulos(); });
+  document.querySelectorAll('[data-msobe]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.msobe; [modulos[i-1],modulos[i]] = [modulos[i],modulos[i-1]]; desenharModulos(); });
+  document.querySelectorAll('[data-mdesce]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.mdesce; [modulos[i+1],modulos[i]] = [modulos[i],modulos[i+1]]; desenharModulos(); });
+}
+
+function desenharLivros(){
+  $('#livros').innerHTML = livros.map((l,i) => `
+    <div class="livro-edit">
+      <div class="cabeca">
+        <span class="indice">${String(i+1).padStart(2,'0')}</span>
+        <input value="${esc(l.titulo)}" data-ltit="${i}" placeholder="Título do livro">
+        <button class="remover" data-ldel="${i}">Remover</button>
+      </div>
+      <div class="mini">
+        <input value="${esc(l.edicao||'')}" data-ledi="${i}" placeholder="Edição (ex.: 5ª edição)">
+        <input value="${esc(l.isbn||'')}" data-lisbn="${i}" placeholder="ISBN">
+      </div>
+      <textarea rows="2" data-lapl="${i}" placeholder="Aplicação na formação">${esc(l.aplicacao||'')}</textarea>
+    </div>`).join('');
+
+  const liga = (attr, campo) => document.querySelectorAll(`[data-${attr}]`).forEach(el =>
+    el.oninput = () => { livros[+el.dataset[attr]][campo] = el.value; });
+  liga('ltit','titulo'); liga('ledi','edicao'); liga('lisbn','isbn'); liga('lapl','aplicacao');
+  document.querySelectorAll('[data-ldel]').forEach(b => b.onclick = () => { livros.splice(+b.dataset.ldel,1); desenharLivros(); });
+}
+
+$('#btn-add-modulo').onclick = () => { modulos.push({parte:'',titulo:'',cargaHoraria:'',descricao:'',aulas:[],aprende:[],diferencial:''}); desenharModulos(); };
+$('#btn-add-livro').onclick = () => { livros.push({titulo:'',edicao:'',isbn:'',aplicacao:''}); desenharLivros(); };
+
+/* ---------- leitor de texto colado ---------- */
+function parsear(txt){
+  const saida = [];
+  let atual = null;
+  txt.split('\n').forEach(bruto => {
+    const linha = bruto.trim();
+    if(!linha) return;
+    const temMarcador = /^[-–—•*·>]\s*/.test(linha) || /^\d+[\.\)]\s+/.test(linha);
+    const limpa = linha.replace(/^[-–—•*·>]\s*/,'').replace(/^\d+[\.\)]\s+/,'').trim();
+
+    const carga = limpa.match(/^carga\s+hor[áa]ria\s*:?\s*(.+)$/i);
+    if(carga && atual){ atual.cargaHoraria = carga[1].trim(); return; }
+
+    const pareceModulo = !temMarcador &&
+      (/^(m[óo]dulo|mod\b|unidade|cap[íi]tulo|parte|semana|bloco|disciplina)\b/i.test(limpa) || /:$/.test(limpa));
+
+    if(pareceModulo){
+      let titulo = limpa.replace(/:$/,'')
+        .replace(/^(m[óo]dulo|mod\.?|unidade|cap[íi]tulo|parte|semana|bloco|disciplina)\s*[IVXLCDM\d]*\s*[-–—:.)]?\s*/i,'')
+        .trim();
+      if(!titulo) titulo = limpa.replace(/:$/,'').trim();
+      atual = { parte:'', titulo, cargaHoraria:'', descricao:'', aulas:[], aprende:[], diferencial:'' };
+      saida.push(atual); return;
+    }
+    if(!atual){
+      atual = { parte:'', titulo: limpa, cargaHoraria:'', descricao:'', aulas:[], aprende:[], diferencial:'' };
+      saida.push(atual); return;
+    }
+    atual.aulas.push(limpa);
+  });
+  return saida;
+}
+
+$('#btn-parsear').onclick = () => {
+  const txt = $('#f-colar').value.trim();
+  if(!txt) return toast('Cole a grade no campo acima primeiro.');
+  modulos = parsear(txt); desenharModulos();
+  toast(`${modulos.length} módulos lidos — confira e ajuste`);
+};
+$('#btn-parsear-add').onclick = () => {
+  const txt = $('#f-colar').value.trim();
+  if(!txt) return toast('Cole a grade no campo acima primeiro.');
+  const novos = parsear(txt);
+  modulos = modulos.concat(novos); desenharModulos();
+  $('#f-colar').value = '';
+  toast(`${novos.length} módulos adicionados`);
+};
+
+/* ---------- salvar ---------- */
+$('#btn-salvar').onclick = async () => {
+  const nome = $('#f-nome').value.trim();
+  if(!nome){ toast('O curso precisa de um nome.'); $('#f-nome').focus(); return; }
+  const linhas = (id) => $(id).value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const corpo = {
+    nome,
+    subtitulo: $('#f-subtitulo').value,
+    cargaHoraria: $('#f-carga').value,
+    nivel: $('#f-nivel').value,
+    modalidade: $('#f-modalidade').value,
+    certificado: $('#f-certificado').value,
+    numeracao: $('#f-numeracao').value,
+    descricao: $('#f-descricao').value,
+    objetivo: $('#f-objetivo').value,
+    destaques: linhas('#f-destaques'),
+    observacoes: $('#f-obs').value,
+    bonus: linhas('#f-bonus'),
+    modulos, livros
+  };
+  const r = await fetch(editando ? '/api/grades/'+editando : '/api/grades', {
+    method: editando ? 'PUT' : 'POST',
+    headers:{'Content-Type':'application/json','x-senha':senha},
+    body: JSON.stringify(corpo)
+  });
+  if(!r.ok){
+    const e = await r.json().catch(()=>({}));
+    return toast(e.erro || 'Não foi possível salvar.');
+  }
+  toast(editando ? 'Curso atualizado' : 'Curso cadastrado');
+  fecharForm(); carregar();
+};
+
+/* ---------- backup ---------- */
+$('#btn-backup').onclick = async () => {
+  const r = await fetch('/api/backup', { headers:{'x-senha':senha} });
+  if(!r.ok) return toast('Não foi possível gerar o backup.');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await r.blob());
+  a.download = 'grades-instructiva-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('Backup baixado');
+};
+
+/* ---------- utilidades ---------- */
+function esc(s){ return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function data(iso){ try{ return new Date(iso).toLocaleDateString('pt-BR'); }catch(e){ return '—'; } }
+let tt;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('ver');
+  clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('ver'), 2200);
+}
+</script>
+</body>
+</html>
