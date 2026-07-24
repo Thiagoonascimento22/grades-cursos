@@ -46,7 +46,15 @@ npm start
 | `DATA_DIR` | `/data` | onde o banco de cursos é gravado |
 | `ADMIN_SENHA` | *(defina uma)* | senha do painel de gestão |
 
-Senha padrão, se `ADMIN_SENHA` não for definida: `instructiva2026`. **Trocar antes de publicar.**
+Senha padrão, se `ADMIN_SENHA` não for definida: `instructiva2026`.
+**Defina `ADMIN_SENHA` no Railway antes de liberar o painel para a equipe.**
+
+## Marca
+
+Logo em `public/logo.png` (fundo transparente) e favicon em `public/favicon.png`.
+Paleta: grafite `#1A1815` como cor principal, laranja `#EE8A0C` do próprio logo usado
+só como acento — filete do curso selecionado, marcador de aprendizado e citação de
+diferencial. Tipografia: Anton nos títulos, Manrope no texto.
 
 ## Onde ficam os dados
 

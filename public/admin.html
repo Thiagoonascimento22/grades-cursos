@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="/favicon.png">
 <title>Gerenciar cursos · Central de Grades</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --papel:#FAF7F2;--branco:#FFFFFF;--tinta:#16130F;--tinta-2:#5F584E;--tinta-3:#8E867A;
-  --linha:#E8E1D6;--laranja:#F26522;--verde:#25A06B;--vermelho:#C0392B;
+  --papel:#FBFAF7;--branco:#FFFFFF;--tinta:#1A1815;--tinta-2:#5C574F;--tinta-3:#928B80;
+  --linha:#E7E2D9;--acento:#EE8A0C;--fundo-previa:#F2EFE9;--vermelho:#B0392B;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Manrope',system-ui,sans-serif;background:var(--papel);color:var(--tinta);-webkit-font-smoothing:antialiased}
@@ -20,19 +21,21 @@ input:focus,textarea:focus,select:focus{border-color:var(--tinta)}
 textarea{resize:vertical;line-height:1.55}
 
 header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:14px 22px;background:var(--branco);border-bottom:1px solid var(--linha)}
-.barra-grad{height:3px;width:34px;background:linear-gradient(90deg,var(--laranja),var(--verde));border-radius:2px}
-header b{font-family:'Anton',sans-serif;font-size:19px;text-transform:uppercase;letter-spacing:.5px}
-header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--tinta-3)}
+header img.logo{width:30px;height:30px;object-fit:contain}
+header b{font-family:'Anton',sans-serif;font-size:19px;text-transform:uppercase;letter-spacing:.5px;line-height:1}
+header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--tinta-3);
+  padding-left:11px;border-left:1px solid var(--linha)}
 .acoes-topo{margin-left:auto;display:flex;gap:8px}
 .btn{padding:9px 15px;border-radius:9px;font-size:13px;font-weight:700;border:1px solid var(--linha);color:var(--tinta-2);text-decoration:none;display:inline-block;background:var(--branco)}
 .btn:hover{border-color:var(--tinta);color:var(--tinta)}
-.btn-forte{background:linear-gradient(90deg,var(--laranja),var(--verde));color:#fff;border:0}
-.btn-forte:hover{filter:brightness(1.06);color:#fff}
+.btn-forte{background:var(--tinta);color:#fff;border:0;transition:background .15s}
+.btn-forte:hover{background:#2E2A25;color:#fff}
 .btn-risco{color:var(--vermelho);border-color:#EBD3CF}
 .btn-risco:hover{background:var(--vermelho);color:#fff;border-color:var(--vermelho)}
 
 .envelope{max-width:1120px;margin:0 auto;padding:28px 22px 80px}
 .login{max-width:380px;margin:14vh auto;background:var(--branco);border:1px solid var(--linha);border-radius:14px;padding:30px}
+.login img{width:46px;height:46px;object-fit:contain;margin-bottom:16px}
 .login h1{font-family:'Anton',sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:6px}
 .login p{font-size:13.5px;color:var(--tinta-2);margin-bottom:20px;line-height:1.5}
 .login button{width:100%;margin-top:12px;padding:13px;border-radius:9px;font-weight:800;font-size:14px}
@@ -59,7 +62,7 @@ header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:u
 
 .modulo-edit,.livro-edit{border:1px solid var(--linha);border-radius:11px;padding:14px;margin-bottom:10px;background:var(--papel)}
 .cabeca{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-.indice{font-family:'Anton',sans-serif;color:var(--laranja);font-size:14px;min-width:26px}
+.indice{font-family:'Anton',sans-serif;color:var(--tinta-3);font-size:14px;min-width:26px}
 .mini{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px}
 .mini input{padding:9px 11px;font-size:13px}
 .remover{font-size:12px;font-weight:700;color:var(--tinta-3);padding:6px 10px;border-radius:7px;border:1px solid var(--linha);background:var(--branco);white-space:nowrap}
@@ -80,12 +83,13 @@ header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:u
 .oculto{display:none!important}
 @media (max-width:760px){.grade-campos,.mini{grid-template-columns:1fr}.envelope{padding:20px 14px 70px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-:focus-visible{outline:2px solid var(--laranja);outline-offset:2px}
+:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
 </style>
 </head>
 <body>
 
 <div class="login" id="tela-login">
+  <img src="/logo.png" alt="Escola Instructiva">
   <h1>Gerenciar cursos</h1>
   <p>Área restrita. Aqui você cadastra e edita as grades que a equipe usa pra enviar aos alunos.</p>
   <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
@@ -95,7 +99,7 @@ header span{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:u
 
 <div id="app" class="oculto">
   <header>
-    <div class="barra-grad"></div>
+    <img class="logo" src="/logo.png" alt="Escola Instructiva">
     <b>Gerenciar cursos</b><span>Escola Instructiva</span>
     <div class="acoes-topo">
       <a class="btn" href="/">Ver central</a>
